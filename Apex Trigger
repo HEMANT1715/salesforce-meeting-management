@@ -1,0 +1,34 @@
+trigger ParticipantTrigger on Participant__c (after insert, after update) {
+    // hold Meeting IDs
+    Set<Id> meetingIdsToUpdate = new Set<Id>();
+    List<Meeting__c> meetingsToUpdate = new List<Meeting__c>();
+
+    // Loop all newly inserted or updated Participant__c records
+    for (Participant__c participant : Trigger.new) {
+        if (participant.Status__c == 'Registered') {
+            if (participant.Meeting__c != null) {
+                meetingIdsToUpdate.add(participant.Meeting__c);
+            }
+        }
+    }
+
+    // Query related Meeting__c records to increment the participant count and check status
+    List<Meeting__c> meetings = [SELECT Id, Registered_Participants__c, Capacity__c, Status__c, Remaining_Capacity__c
+                                 FROM Meeting__c
+                                 WHERE Id IN :meetingIdsToUpdate];
+
+    for (Meeting__c meeting : meetings) {
+        // Increment the Registered_Participants__c field
+        meeting.Registered_Participants__c = (meeting.Registered_Participants__c == null ? 0 : meeting.Registered_Participants__c) + 1;
+
+            if (meeting.Remaining_Capacity__c == 0) {
+            meeting.Status__c = 'Full';
+        }
+
+         meetingsToUpdate.add(meeting);
+    }
+
+    if (!meetingsToUpdate.isEmpty()) {
+        update meetingsToUpdate;
+    }
+}
