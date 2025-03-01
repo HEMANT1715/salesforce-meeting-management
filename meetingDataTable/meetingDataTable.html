@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Meeting Data Table">
+        <template if:true={meetings}>
+            <lightning-datatable
+                data={meetings}
+                columns={columns}
+                key-field="Id"
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        <template if:true={error}>
+            <p>{error.message}</p>
+        </template>
+    </lightning-card>
+</template>
