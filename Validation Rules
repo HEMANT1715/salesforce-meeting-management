@@ -1,0 +1,17 @@
+//5. User Access Restrictions
+//Access for Meeting Records:Only users with the "Meeting Manager" role can create and edit Meeting__c records.
+Validation rule on Meeting Object
+$UserRole.Name != 'Meeting Manager'
+
+//Access for Participant Records: Users with the "Attendee" profile can only create and view their own Participant__c records.
+Validation rule on Participant Object
+$Profile.Name != 'Attendee'
+
+//6. Validation Rules:
+//Meeting Date Validation: Ensure that the Meeting_Date__c field cannot be in the past.
+Validation rule on meeting object
+Meeting_Date__c < TODAY()
+
+//Participant Validation: Prevent the creation of a Participant__c record if the related Meeting__c is Full.
+Validation rule on Participant Object
+AND(ISNEW(),ISPICKVAL(Meeting__r.Status__c, 'Full'))
